@@ -50,41 +50,162 @@ class SmsMd {
     }
 
     /**
-     * Get Balance.
-     * @return int Balance.
-     */
-     public function getBalance() {
-        $request = new Request('GET', self::API_URL . self::API_VERSION . '/balance');
-        $client = new Client();
-        $response = $client->send($request, [
-            'token' => $this->apiToken
-        ]);
-        $this->apiResponse = json_decode($response->getBody()->getContents(), true);
-        return $this->apiResponse['balance'];
-    }
-
-
-    /**
-     * Send SMS.
-     * @param string $phoneNumber Phone number.
-     * @param string $message Message.
-     * @param string $sender Sender.
+     * Request API.
+     * @param string $method API method.
+     * @param string $endpoint API endpoint.
+     * @param array $params API parameters.
      * @return array API response.
      */
-
-    public function sendSms($phoneNumber, $message, $sender = null) {
-        $request = new Request('POST', self::API_URL . self::API_VERSION . '/send');
+    private function request($method, $endpoint, $params = []) {
         $client = new Client();
-        $response = $client->send($request, 
-            [
-                'token' => $this->apiToken,
-                'to' => $phoneNumber,
-                'message' => $message,
-                'from' => $sender,
-            ]);
+
+        $params['token'] = $this->apiToken;
+        $request = new Request($method, self::API_URL . self::API_VERSION . '/' . $endpoint . '?' . http_build_query($params));
+        $response = $client->send($request);
         $this->apiResponse = json_decode($response->getBody()->getContents(), true);
         return $this->apiResponse;
     }
 
+    /**
+     * Validate phone number.
+     * @param string $phoneNumber Phone number.
+     * @return string Phone number.
+     */
+    private function validatePhoneNumber($phoneNumber) {
+        if ($this->validatePhoneNumbers) {
+            $phoneNumber = preg_replace('/^[0-9]{10}+$/', '', $phoneNumber);
+            if (strlen($phoneNumber) != 11) {
+                throw new \Exception('Invalid phone number.');
+            }
+        }
+        return $phoneNumber;
+    }
+
+    /**
+     * Get Balance.
+     * @return int Balance.
+     */
+     public function getBalance() {
+        $this->request('GET', 'balance');
+        return $this->apiResponse['balance'];
+    }
+
+    /**
+     * Send SMS.
+     * @param string $from Sender.
+     * @param string $to Phone Number.
+     * @param string $message Message.
+     * @return array API response.
+     */
+
+    public function sendSms($to, $message, $from = null) {
+
+        // Validate phone number
+        if($this->validatePhoneNumbers) {
+            $to = $this->validatePhoneNumber($to);
+        }
+
+        $params = [
+            'from' => $from,
+            'to' => $to,
+            'message' => $message,
+        ];
+        $this->request('GET', 'send', $params);
+        return $this->apiResponse;
+    }
+
+    /**
+     * Get Messages.
+     * @param int $page Page.
+     * @param string $dateFrom Date from. 01.07.2022
+     * @param string $dateTo Date to. 20.07.2022
+     * @param string $status Status. string 1-Ждет отпрки, 2-Отправлено, 3-Добавлено, 9-Ошибка отпраки
+     * @return array API response.
+     */
+    public function getMessages($page = 1, $dateFrom = null, $dateTo = null, $status = null) {
+        $params = [
+            'page' => $page,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'status' => $status,
+        ];
+        $this->request('GET', 'message', $params);
+        return $this->apiResponse;
+    }
+
+    /**
+     * Get Message.
+     * @param int $id Message ID.
+     * @return array API response.
+     */
+    public function getMessage($id) {
+        $this->request('GET', 'message/' . $id);
+        return $this->apiResponse;
+    }
+
+    /**
+     * Get Message status list
+     * @return array API response.
+     */
+    public function getMessageStatuses() {
+        $this->request('GET', 'message/status');
+        return $this->apiResponse;
+    }
+
+    /**
+     * Get all sender aliases
+     * @return array API response.
+     */
+    public function getSenderAliases() {
+        $this->request('GET', 'sender-alias');
+        return $this->apiResponse;
+    }
+
+    /**
+     * Get Stats
+     * @return array API response.
+     */
+    public function getStats() {
+        $this->request('GET', 'stats');
+        return $this->apiResponse;
+    }
+
+    /** Get all contacts
+     * @param int $page Page.
+     * @return array API response.
+     */
+    public function getContacts($page = 1) {
+        $params = [
+            'page' => $page,
+        ];
+        $this->request('GET', 'contact', $params);
+        return $this->apiResponse;
+    }
+
+    /**
+     * Get all address books
+     * @param int $page Page.
+     * @return array API response.
+     */
+    public function getAddressBooks($page = 1) {
+        $params = [
+            'page' => $page,
+        ];
+        $this->request('GET', 'address-book', $params);
+        return $this->apiResponse;
+    }
+
+    /**
+     * Get all address book contacts
+     * @param string $id Address book ID.
+     * @param int $page Page.
+     */
+    public function getAddressBookContacts($id, $page = 1) {
+        $params = [
+            'page' => $page,
+        ];
+        $this->request('GET', 'address-book/' . $id . '/contact', $params);
+        return $this->apiResponse;
+    }
     
 }
