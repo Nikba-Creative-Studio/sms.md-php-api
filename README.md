@@ -1,7 +1,7 @@
 # SMS.MD API SDK
-#### Send SMS using sms.md
+#### Send SMS using [sms.md](https://sms.md/)
 
-ServiceSMS messaging in Moldova - Build a reliable and effective connection with customers using the capabilities of sms.md
+ServiceSMS messaging in Moldova - Build a reliable and effective connection with customers using the capabilities of [sms.md](https://sms.md/)
 
 ## Installation
 
