@@ -1,0 +1,26 @@
+{
+    "name": "nikba/sms.md-php-api",
+    "description": "SMS.MD API PHP SDK",
+    "keywords": ["sms.md", "sms", "php", "api"],
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Nikba\\SmsMdPhpApi\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Bargan Nicolai",
+            "email": "office@nikba.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=5.6",
+        "guzzlehttp/guzzle": "^6.4 || ^7.4"
+    },
+    "suggest": {
+        "giggsey/libphonenumber-for-php": "Allows phone number verification"
+    }
+}
